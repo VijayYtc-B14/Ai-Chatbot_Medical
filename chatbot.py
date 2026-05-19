@@ -1,17 +1,29 @@
 import os
+import streamlit as st
 from dotenv import load_dotenv
 from google import genai
 from openai import OpenAI
 
 # -----------------------------------
-# Load environment variables
+# Load .env as backup
 # -----------------------------------
 
 load_dotenv()
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# -----------------------------------
+# Get keys from Home page input
+# fallback -> .env
+# -----------------------------------
 
+GEMINI_API_KEY = st.session_state.get(
+    "gemini_key",
+    os.getenv("GEMINI_API_KEY")
+)
+
+OPENAI_API_KEY = st.session_state.get(
+    "openai_key",
+    os.getenv("OPENAI_API_KEY")
+)
 
 # -----------------------------------
 # Initialize clients
@@ -26,21 +38,18 @@ if GEMINI_API_KEY:
         api_key=GEMINI_API_KEY
     )
 
-
 if OPENAI_API_KEY:
 
     openai_client = OpenAI(
         api_key=OPENAI_API_KEY
     )
 
-
 # -----------------------------------
 # System Prompt
 # -----------------------------------
 
 SYSTEM_PROMPT = """
-You are MediCare AI Assistant,
-a professional healthcare chatbot.
+You are MediCare AI Assistant.
 
 Responsibilities:
 
@@ -54,42 +63,25 @@ Responsibilities:
 
 Rules:
 
-1. Provide informational guidance only
-
-2. Never diagnose diseases
-
-3. Recommend consulting doctors
-for serious concerns
-
+1. Informational use only
+2. Never diagnose disease
+3. Recommend doctors
 4. Keep answers concise
+5. Use bullet points
 
-5. Use bullet points where useful
-
-6. Never claim certainty
-
-
-Always include:
-
-Disclaimer:
-This information is educational
-and not a substitute for
-professional medical advice.
+Always include disclaimer:
+Educational only. Not medical advice.
 """
 
-
 # -----------------------------------
-# Main Chat Function
+# Main response
 # -----------------------------------
 
-def get_response(user_message: str):
+def get_response(user_message):
 
     try:
 
         if gemini_client:
-
-            print(
-                "Using Gemini..."
-            )
 
             response = gemini_client.models.generate_content(
 
@@ -99,38 +91,28 @@ def get_response(user_message: str):
 
 {SYSTEM_PROMPT}
 
-User Question:
+User:
 
 {user_message}
 
 """
             )
 
-            if response:
+            if response and response.text:
 
-                if hasattr(
-                    response,
-                    "text"
-                ):
-
-                    return response.text
+                return response.text
 
     except Exception as e:
 
         print(
-            "Gemini Error:",
-            e
+        "Gemini Error:",
+        e
         )
-
 
 
     try:
 
         if openai_client:
-
-            print(
-                "Switching to OpenAI..."
-            )
 
             response = openai_client.chat.completions.create(
 
@@ -139,155 +121,83 @@ User Question:
                 messages=[
 
                     {
-                        "role":"system",
-
-                        "content":
-                        SYSTEM_PROMPT
+                    "role":"system",
+                    "content":SYSTEM_PROMPT
                     },
 
                     {
-                        "role":"user",
-
-                        "content":
-                        user_message
+                    "role":"user",
+                    "content":user_message
                     }
 
                 ]
             )
 
             return response.choices[
-                0
+            0
             ].message.content
 
     except Exception as e:
 
         print(
-            "OpenAI Error:",
-            e
+        "OpenAI Error:",
+        e
         )
 
-
-
     return """
-
-⚠ AI service unavailable.
-
-Please try again later.
-
+⚠ Service unavailable
 """
 
-
 # -----------------------------------
-# Medicine Information
+# Medicine info
 # -----------------------------------
 
 def get_medicine_info(
-    medicine_name
+medicine_name
 ):
 
-    prompt = f"""
-
-Provide complete information
-about:
-
-{medicine_name}
-
-
-Include:
-
-1. Generic Name
-
-2. Uses
-
-3. Dosage
-
-4. Side Effects
-
-5. Precautions
-
-6. Storage
-
-7. Drug Interactions
-
-8. Disclaimer
-
-"""
-
-    return get_response(
-        prompt
-    )
-
-
-# -----------------------------------
-# Drug Interaction Checker
-# -----------------------------------
-
-def check_interactions(
-    medicines
-):
-
-    medicines_text = ", ".join(
-        medicines
-    )
-
-    prompt = f"""
-
-Check interaction among:
-
-{medicines_text}
-
+    prompt=f"""
 
 Provide:
 
-1. Interactions
+1 Uses
 
-2. Severity
+2 Dosage
 
-3. Recommendations
+3 Side Effects
 
-4. Disclaimer
+4 Precautions
 
-"""
+for:
 
-    return get_response(
-        prompt
-    )
-
-
-# -----------------------------------
-# Health Tips
-# -----------------------------------
-
-def health_tips():
-
-    prompt = """
-
-Give 5 short health tips.
+{medicine_name}
 
 """
 
     return get_response(
-        prompt
+    prompt
     )
 
-
 # -----------------------------------
-# Delivery Support
+# Interactions
 # -----------------------------------
 
-def order_support(
-    order_id
+def check_interactions(
+medicines
 ):
 
-    return f"""
+    medicine_text=", ".join(
+    medicines
+    )
 
-Order ID:
-{order_id}
+    prompt=f"""
 
-Status:
-Out for delivery
+Check interaction:
 
-Expected:
-Tomorrow
+{medicine_text}
 
 """
+
+    return get_response(
+    prompt
+    )

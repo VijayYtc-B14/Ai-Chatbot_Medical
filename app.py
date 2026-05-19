@@ -12,7 +12,90 @@ st.set_page_config(
 )
 
 # -------------------------------
-# Custom CSS
+# API Access
+# -------------------------------
+
+st.sidebar.title("💊 MediCare AI")
+
+st.sidebar.subheader(
+    "🔑 API Access"
+)
+
+if "gemini_key" not in st.session_state:
+    st.session_state["gemini_key"] = ""
+
+if "openai_key" not in st.session_state:
+    st.session_state["openai_key"] = ""
+
+gemini_key = st.sidebar.text_input(
+    "Gemini API Key",
+    type="password",
+    placeholder="Paste Gemini API Key"
+)
+
+openai_key = st.sidebar.text_input(
+    "OpenAI API Key (optional)",
+    type="password",
+    placeholder="Paste OpenAI Key"
+)
+
+if st.sidebar.button(
+    "Activate Access",
+    key="activate_button"
+):
+
+    st.session_state[
+        "gemini_key"
+    ] = gemini_key
+
+    st.session_state[
+        "openai_key"
+    ] = openai_key
+
+    st.sidebar.success(
+        "✅ Access Activated"
+    )
+
+
+st.sidebar.divider()
+
+st.sidebar.info("""
+
+24/7 AI Medical Support
+
+Medicine Search
+
+AI Chatbot
+
+Order Tracking
+
+Medicine Upload
+
+""")
+
+
+# lock site until key entered
+
+if not st.session_state[
+    "gemini_key"
+]:
+
+    st.warning("""
+
+🔒 Please enter your
+Gemini API key from
+the sidebar.
+
+Then click:
+
+Activate Access
+
+""")
+
+    st.stop()
+
+# -------------------------------
+# CSS
 # -------------------------------
 
 st.markdown("""
@@ -23,60 +106,52 @@ font-size:28px;
 }
 
 .hero{
-background:linear-gradient(
+background:
+linear-gradient(
 135deg,
 #667eea 0%,
 #764ba2 100%
 );
 
 padding:40px;
+
 border-radius:15px;
+
 text-align:center;
+
 color:white;
+
 margin-bottom:30px;
 }
 
 .review{
 background:#f0f2f6;
+
 padding:15px;
+
 border-radius:10px;
+
 border-left:5px solid blue;
+
 margin:10px;
 }
 
 .tip{
+
 background:#fff3cd;
+
 padding:15px;
+
 border-radius:10px;
+
 margin:10px;
+
 }
 
 </style>
+
 """,unsafe_allow_html=True)
 
-# -------------------------------
-# Sidebar
-# -------------------------------
-
-st.sidebar.title(
-"💊 MediCare AI"
-)
-
-st.sidebar.write(
-"Smart Healthcare Platform"
-)
-
-st.sidebar.divider()
-
-st.sidebar.info("""
-24/7 AI Medical Support
-
-Medicine Search
-
-AI Chatbot
-
-Order Tracking
-""")
 
 # -------------------------------
 # Hero
@@ -87,17 +162,21 @@ st.markdown("""
 <div class="hero">
 
 <h1>
+
 🏥 MediCare AI
+
 </h1>
 
 <h3>
+
 Smart Pharmacy &
 Healthcare Platform
+
 </h3>
 
 <p>
 
-AI powered medical
+AI powered healthcare
 assistant platform
 
 </p>
@@ -105,6 +184,7 @@ assistant platform
 </div>
 
 """,unsafe_allow_html=True)
+
 
 # -------------------------------
 # Categories
@@ -139,165 +219,6 @@ with c4:
     "🧠 Mental Health",
     "1200+"
     )
-
-st.divider()
-
-# -------------------------------
-# Stats
-# -------------------------------
-
-st.subheader(
-"📊 Platform Statistics"
-)
-
-a,b,c,d=st.columns(4)
-
-with a:
-    st.metric(
-    "Users",
-    "150K+",
-    "+15K"
-    )
-
-with b:
-    st.metric(
-    "Medicines",
-    "10K+",
-    "+500"
-    )
-
-with c:
-    st.metric(
-    "Orders",
-    "500K+",
-    "+50K"
-    )
-
-with d:
-    st.metric(
-    "Satisfaction",
-    "98%",
-    "+2%"
-    )
-
-st.divider()
-
-# -------------------------------
-# Reviews
-# -------------------------------
-
-st.subheader(
-"⭐ Customer Reviews"
-)
-
-r1,r2,r3=st.columns(3)
-
-with r1:
-
-    st.markdown("""
-
-<div class="review">
-
-Rajesh ⭐⭐⭐⭐⭐
-
-Excellent service.
-
-Fast delivery.
-
-Helpful chatbot.
-
-</div>
-
-""",unsafe_allow_html=True)
-
-with r2:
-
-    st.markdown("""
-
-<div class="review">
-
-Priya ⭐⭐⭐⭐⭐
-
-Medicine search
-works very well
-
-</div>
-
-""",unsafe_allow_html=True)
-
-with r3:
-
-    st.markdown("""
-
-<div class="review">
-
-Amit ⭐⭐⭐⭐
-
-Great experience
-
-</div>
-
-""",unsafe_allow_html=True)
-
-st.divider()
-
-# -------------------------------
-# Health Tips
-# -------------------------------
-
-st.subheader(
-"💡 Daily Health Tips"
-)
-
-t1,t2=st.columns(2)
-
-with t1:
-
-    st.markdown(
-    """
-<div class="tip">
-
-💧 Drink water daily
-
-</div>
-""",
-unsafe_allow_html=True
-)
-
-    st.markdown(
-    """
-<div class="tip">
-
-🏃 Exercise 30 mins
-
-</div>
-""",
-unsafe_allow_html=True
-)
-
-with t2:
-
-    st.markdown(
-"""
-<div class="tip">
-
-😴 Sleep 7-9 hours
-
-</div>
-""",
-unsafe_allow_html=True
-)
-
-    st.markdown(
-"""
-<div class="tip">
-
-🥗 Eat healthy food
-
-</div>
-""",
-unsafe_allow_html=True
-)
 
 st.divider()
 
@@ -362,21 +283,15 @@ with q4:
         "pages/7_FAQ.py"
         )
 
-
 st.divider()
 
-# -------------------------------
-# Footer
-# -------------------------------
+st.caption("""
 
-st.caption(
-"""
 © 2026 MediCare AI
 
-Educational purposes only.
+Educational use only
 
-Consult healthcare
-professionals.
+Consult doctors before
+medical decisions.
 
-"""
-)
+""")
